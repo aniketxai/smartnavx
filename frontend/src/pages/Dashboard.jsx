@@ -15,6 +15,12 @@ function Dashboard() {
       linkTo: '/bookings',
     },
     {
+      title: 'Check Access',
+      description: 'Validate whether RFID can access a room now',
+      icon: '🔐',
+      linkTo: '/check-access',
+    },
+    {
       title: 'Campus Navigation',
       description: 'Find your way around campus',
       icon: '🗺️',

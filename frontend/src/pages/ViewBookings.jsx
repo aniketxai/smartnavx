@@ -15,7 +15,7 @@ function ViewBookings() {
       setLoading(true);
       setError('');
       const data = await getBookings();
-      setBookings(data.bookings || data || []);
+      setBookings(Array.isArray(data) ? data : []);
     } catch (err) {
       setError(err.message || 'Failed to load bookings');
     } finally {
@@ -23,26 +23,36 @@ function ViewBookings() {
     }
   };
 
-  const formatDate = (dateString) => {
-    if (!dateString) return '';
+  const formatDateTime = (dateString) => {
+    if (!dateString) return '-';
+
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
+    if (Number.isNaN(date.getTime())) return '-';
+
+    return date.toLocaleString('en-US', {
       year: 'numeric',
-      month: 'long',
+      month: 'short',
       day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
     });
   };
 
-  const formatTime = (timeString) => {
-    if (!timeString) return '';
-    return timeString;
+  const getRoomName = (roomIdValue) => {
+    if (!roomIdValue) return 'N/A';
+    if (typeof roomIdValue === 'object' && roomIdValue.name) return roomIdValue.name;
+    return String(roomIdValue);
+  };
+
+  const getBookingId = (booking, index) => {
+    return booking?._id || booking?.id || `${booking?.userId || 'booking'}-${index}`;
   };
 
   return (
     <div className="page-container">
       <div className="page-header">
         <h1 className="page-title">View Bookings</h1>
-        <p className="page-subtitle">Your current and upcoming reservations</p>
+        <p className="page-subtitle">Current and upcoming reservations</p>
       </div>
 
       {loading && (
@@ -70,24 +80,18 @@ function ViewBookings() {
             <thead>
               <tr>
                 <th>Room</th>
-                <th>Date</th>
-                <th>Start Time</th>
-                <th>End Time</th>
-                <th>Status</th>
+                <th>Start</th>
+                <th>End</th>
+                <th>User ID</th>
               </tr>
             </thead>
             <tbody>
               {bookings.map((booking, index) => (
-                <tr key={booking.id || index}>
-                  <td>{booking.room}</td>
-                  <td>{formatDate(booking.date)}</td>
-                  <td>{formatTime(booking.startTime || booking.start_time)}</td>
-                  <td>{formatTime(booking.endTime || booking.end_time)}</td>
-                  <td>
-                    <span className="status-badge status-confirmed">
-                      {booking.status || 'Confirmed'}
-                    </span>
-                  </td>
+                <tr key={getBookingId(booking, index)}>
+                  <td>{getRoomName(booking.roomId)}</td>
+                  <td>{formatDateTime(booking.startTime)}</td>
+                  <td>{formatDateTime(booking.endTime)}</td>
+                  <td>{booking.userId || 'N/A'}</td>
                 </tr>
               ))}
             </tbody>

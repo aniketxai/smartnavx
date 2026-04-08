@@ -261,6 +261,12 @@
   border: 2px solid #ef4444;
 }
 
+.field-error {
+  color: #b91c1c;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
 .loading-container {
   text-align: center;
   padding: 3rem;

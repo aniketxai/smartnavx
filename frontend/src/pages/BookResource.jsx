@@ -1,26 +1,43 @@
-import { useState } from 'react';
-import { bookResource } from '../services/api';
+import { useEffect, useMemo, useState } from 'react';
+import { bookResource, getRooms } from '../services/api';
+
+const DEFAULT_RFID = '123ABC';
 
 function BookResource() {
   const [formData, setFormData] = useState({
-    room: '',
+    roomId: '',
     date: '',
     startTime: '',
     endTime: '',
   });
+  const [rooms, setRooms] = useState([]);
+  const [roomsLoading, setRoomsLoading] = useState(true);
+  const [roomsError, setRoomsError] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
 
-  const rooms = [
-    'Lab A1',
-    'Lab B2',
-    'Conference Room 1',
-    'Conference Room 2',
-    'Study Room 101',
-    'Study Room 102',
-    'Lecture Hall A',
-    'Lecture Hall B',
-  ];
+  useEffect(() => {
+    const fetchRooms = async () => {
+      try {
+        setRoomsLoading(true);
+        setRoomsError('');
+        const response = await getRooms();
+        setRooms(Array.isArray(response) ? response : []);
+      } catch (error) {
+        setRoomsError(error.message || 'Failed to load rooms');
+      } finally {
+        setRoomsLoading(false);
+      }
+    };
+
+    fetchRooms();
+  }, []);
+
+  const roomOptions = useMemo(() => {
+    return rooms
+      .filter((room) => room?._id && room?.name)
+      .map((room) => ({ id: String(room._id), name: room.name }));
+  }, [rooms]);
 
   const handleChange = (e) => {
     setFormData({
@@ -33,8 +50,21 @@ function BookResource() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.room || !formData.date || !formData.startTime || !formData.endTime) {
+    if (!formData.roomId || !formData.date || !formData.startTime || !formData.endTime) {
       setMessage({ type: 'error', text: 'Please fill in all fields' });
+      return;
+    }
+
+    const start = new Date(`${formData.date}T${formData.startTime}`);
+    const end = new Date(`${formData.date}T${formData.endTime}`);
+
+    if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+      setMessage({ type: 'error', text: 'Please enter valid date/time values' });
+      return;
+    }
+
+    if (end <= start) {
+      setMessage({ type: 'error', text: 'End time must be after start time' });
       return;
     }
 
@@ -42,10 +72,16 @@ function BookResource() {
     setMessage({ type: '', text: '' });
 
     try {
-      await bookResource(formData);
+      await bookResource({
+        rfid: String(DEFAULT_RFID),
+        roomId: String(formData.roomId),
+        startTime: start.toISOString(),
+        endTime: end.toISOString(),
+      });
+
       setMessage({ type: 'success', text: 'Resource booked successfully!' });
       setFormData({
-        room: '',
+        roomId: '',
         date: '',
         startTime: '',
         endTime: '',
@@ -64,30 +100,34 @@ function BookResource() {
     <div className="page-container">
       <div className="page-header">
         <h1 className="page-title">Book Resource</h1>
-        <p className="page-subtitle">Reserve a room or lab for your needs</p>
+        <p className="page-subtitle">Reserve a room or lab using your RFID ({DEFAULT_RFID})</p>
       </div>
 
       <div className="form-container">
         <form onSubmit={handleSubmit} className="booking-form">
           <div className="form-group">
-            <label htmlFor="room" className="form-label">
+            <label htmlFor="roomId" className="form-label">
               Select Room
             </label>
             <select
-              id="room"
-              name="room"
-              value={formData.room}
+              id="roomId"
+              name="roomId"
+              value={formData.roomId}
               onChange={handleChange}
               className="form-select"
+              disabled={roomsLoading || !!roomsError}
               required
             >
-              <option value="">Choose a room...</option>
-              {rooms.map((room, index) => (
-                <option key={index} value={room}>
-                  {room}
+              <option value="">
+                {roomsLoading ? 'Loading rooms...' : 'Choose a room...'}
+              </option>
+              {roomOptions.map((room) => (
+                <option key={room.id} value={room.id}>
+                  {room.name}
                 </option>
               ))}
             </select>
+            {roomsError && <p className="field-error">{roomsError}</p>}
           </div>
 
           <div className="form-group">
@@ -146,7 +186,7 @@ function BookResource() {
           <button
             type="submit"
             className="btn btn-primary"
-            disabled={loading}
+            disabled={loading || roomsLoading || !!roomsError}
           >
             {loading ? 'Booking...' : 'Book Resource'}
           </button>
