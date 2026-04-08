@@ -1,10 +1,10 @@
-# 🧭 SmartNavX
+# SmartNavX
 
 > An RFID-based smart navigation and access control system built with Arduino — designed as a physical prototype using everyday materials.
 
 ---
 
-## 📸 Project Preview
+## Project Preview
 
 ### Front View
 ![SmartNavX Front View](image1.jpeg)
@@ -14,13 +14,13 @@
 
 ---
 
-## 🔍 Overview
+## Overview
 
 **SmartNavX** is an embedded systems project that combines RFID authentication, ultrasonic sensing, and multi-sensor integration to create a smart entry/navigation system. The prototype is housed in a cardboard enclosure styled with a brick-pattern finish to simulate a real-world wall-mounted unit.
 
 ---
 
-## 🛠️ Components Used
+## Components Used
 
 | Component | Purpose |
 |-----------|---------|
@@ -34,17 +34,17 @@
 
 ---
 
-## ⚙️ Features
+## Features
 
-- 🔐 **RFID Authentication** — Scan authorized cards/tags to trigger access
-- 🟢🔴 **LED Indicators** — Green for access granted, Red for denied
-- 🔊 **Buzzer Alerts** — Audio cue on authentication events
-- 📡 **Ultrasonic Proximity Detection** — Detects nearby presence before RFID scan
-- 💻 **Serial Monitor Integration** — Real-time feedback via USB to laptop
+- **RFID Authentication** — Scan authorized cards/tags to trigger access
+- **LED Indicators** — Green for access granted, Red for denied
+- **Buzzer Alerts** — Audio cue on authentication events
+- **Ultrasonic Proximity Detection** — Detects nearby presence before RFID scan
+- **Serial Monitor Integration** — Real-time feedback via USB to laptop
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -67,7 +67,7 @@ cd smartnavx
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 smartnavx/
@@ -81,40 +81,40 @@ smartnavx/
 
 ---
 
-## 🔌 Circuit Diagram
+## Circuit Diagram
 
 > Connect components as follows:
 
-- **RFID (RC522)** → SPI pins (SS=10, RST=9, MOSI=11, MISO=12, SCK=13)
-- **Ultrasonic (HC-SR04)** → Trig=7, Echo=6
-- **Green LED** → Pin 4 (with 220Ω resistor)
-- **Red LED** → Pin 3 (with 220Ω resistor)
-- **Buzzer** → Pin 5
+- **RFID (RC522)** — SPI pins (SS=10, RST=9, MOSI=11, MISO=12, SCK=13)
+- **Ultrasonic (HC-SR04)** — Trig=7, Echo=6
+- **Green LED** — Pin 4 (with 220 ohm resistor)
+- **Red LED** — Pin 3 (with 220 ohm resistor)
+- **Buzzer** — Pin 5
 
 ---
 
-## 🧪 How It Works
+## How It Works
 
 1. Ultrasonic sensor detects presence within a threshold distance
 2. System prompts for RFID scan (LEDs indicate standby)
 3. User taps RFID card/tag on the scanner
 4. Arduino checks UID against stored authorized UIDs
-5. If authorized → Green LED + buzzer beep (access granted)
-6. If unauthorized → Red LED + long buzzer tone (access denied)
+5. If authorized — Green LED + buzzer beep (access granted)
+6. If unauthorized — Red LED + long buzzer tone (access denied)
 7. All events are logged to the Serial Monitor in real time
 
 ---
 
-## 👨‍💻 Author
+## Author
 
 **Aniket** — [@aniketxai](https://github.com/aniketxai)
 
 ---
 
-## 📄 License
+## License
 
 This project is open-source and available under the [MIT License](LICENSE).
 
 ---
 
-> *Built with ❤️, cardboard, and a lot of jumper wires.*
+> *Built with cardboard, and a lot of jumper wires.*
