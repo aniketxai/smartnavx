@@ -1,147 +1,120 @@
-# Smart Campus Resource Optimizer
+# 🧭 SmartNavX
 
-A smart IoT-based campus system that enables real-time resource booking
-and automated access control using RFID and ESP32.
+> An RFID-based smart navigation and access control system built with Arduino — designed as a physical prototype using everyday materials.
 
-------------------------------------------------------------------------
+---
 
-## Problem Statement
+## 📸 Project Preview
 
-Campus resources such as labs, classrooms, and study spaces are often
-underutilized due to lack of real-time tracking and inefficient booking
-systems.
+### Front View
+![SmartNavX Front View](image1.jpeg)
 
-------------------------------------------------------------------------
+### Internal Wiring
+![SmartNavX Internal Wiring](image2.jpeg)
 
-## Solution
+---
 
-This project provides a smart campus system that:
+## 🔍 Overview
 
--   Enables real-time booking of resources\
--   Uses RFID for seamless user identification\
--   Automates access using ESP32 and servo motor\
--   Tracks usage and improves efficiency
+**SmartNavX** is an embedded systems project that combines RFID authentication, ultrasonic sensing, and multi-sensor integration to create a smart entry/navigation system. The prototype is housed in a cardboard enclosure styled with a brick-pattern finish to simulate a real-world wall-mounted unit.
 
-------------------------------------------------------------------------
+---
 
-## Key Features
+## 🛠️ Components Used
 
--   Real-time room and resource booking\
--   RFID-based authentication (no login required)\
--   Automated access control using ESP32\
--   Resource availability tracking\
--   Campus navigation system\
--   Web-based interface using React
+| Component | Purpose |
+|-----------|---------|
+| Arduino (Microcontroller) | Core processing unit |
+| RFID Module (RC522 / PN532) | Card-based authentication |
+| Ultrasonic Sensor (HC-SR04) | Proximity / distance detection |
+| Red & Green LEDs | Access granted / denied indication |
+| Buzzer | Audio feedback |
+| IR / Motion Sensor Module | Additional detection capability |
+| Jumper Wires & Breadboard | Circuit connections |
 
-------------------------------------------------------------------------
+---
 
-## System Architecture
+## ⚙️ Features
 
-ESP32 (RFID + IR Sensor + Servo)\
-↓\
-Node.js Backend (API and logic)\
-↓\
-MongoDB Atlas (cloud database)\
-↓\
-React Frontend (user interface)
+- 🔐 **RFID Authentication** — Scan authorized cards/tags to trigger access
+- 🟢🔴 **LED Indicators** — Green for access granted, Red for denied
+- 🔊 **Buzzer Alerts** — Audio cue on authentication events
+- 📡 **Ultrasonic Proximity Detection** — Detects nearby presence before RFID scan
+- 💻 **Serial Monitor Integration** — Real-time feedback via USB to laptop
 
-------------------------------------------------------------------------
+---
 
-## Tech Stack
+## 🚀 Getting Started
 
-### Frontend
+### Prerequisites
 
--   React (JavaScript)\
--   Axios\
--   Tailwind CSS
+- Arduino IDE installed
+- Required libraries:
+  - `MFRC522` (for RFID)
+  - `NewPing` (for ultrasonic sensor)
 
-### Backend
+### Installation
 
--   Node.js\
--   Express.js\
--   MongoDB Atlas\
--   Mongoose
+```bash
+git clone https://github.com/aniketxai/smartnavx.git
+cd smartnavx
+```
 
-### Hardware
+1. Open the `.ino` file in **Arduino IDE**
+2. Install required libraries via **Library Manager**
+3. Select the correct **Board** and **COM Port**
+4. Upload the sketch to your Arduino
 
--   ESP32\
--   RFID Module\
--   IR Sensor\
--   Servo Motor
+---
 
-------------------------------------------------------------------------
+## 📁 Project Structure
 
-## API Endpoints
+```
+smartnavx/
+├── src/
+│   └── smartnavx.ino       # Main Arduino sketch
+├── images/
+│   ├── image1.jpeg         # Front view of prototype
+│   └── image2.jpeg         # Internal wiring
+└── README.md
+```
 
-  Method   Endpoint            Description
-  -------- ------------------- ------------------------
-  GET      /api/rooms          Get all rooms
-  POST     /api/book           Book a resource
-  GET      /api/bookings       Get all bookings
-  POST     /api/check-access   RFID access validation
+---
 
-------------------------------------------------------------------------
+## 🔌 Circuit Diagram
 
-## How It Works
+> Connect components as follows:
 
-1.  User books a room through the web application\
-2.  Booking is stored in the database\
-3.  User scans RFID card at the door\
-4.  ESP32 sends request to backend\
-5.  Backend validates booking\
-6.  If valid, servo motor unlocks the door
+- **RFID (RC522)** → SPI pins (SS=10, RST=9, MOSI=11, MISO=12, SCK=13)
+- **Ultrasonic (HC-SR04)** → Trig=7, Echo=6
+- **Green LED** → Pin 4 (with 220Ω resistor)
+- **Red LED** → Pin 3 (with 220Ω resistor)
+- **Buzzer** → Pin 5
 
-------------------------------------------------------------------------
+---
 
-## Sample API Request
+## 🧪 How It Works
 
-### Check Access
+1. Ultrasonic sensor detects presence within a threshold distance
+2. System prompts for RFID scan (LEDs indicate standby)
+3. User taps RFID card/tag on the scanner
+4. Arduino checks UID against stored authorized UIDs
+5. If authorized → Green LED + buzzer beep (access granted)
+6. If unauthorized → Red LED + long buzzer tone (access denied)
+7. All events are logged to the Serial Monitor in real time
 
-POST /api/check-access
+---
 
-{ "rfid": "123ABC", "roomId": "R101" }
+## 👨‍💻 Author
 
-------------------------------------------------------------------------
+**Aniket** — [@aniketxai](https://github.com/aniketxai)
 
-## Getting Started
+---
 
-### Clone Repository
+## 📄 License
 
-git clone https://github.com/your-username/smart-campus.git\
-cd smart-campus
+This project is open-source and available under the [MIT License](LICENSE).
 
-### Install Dependencies
+---
 
-npm install
-
-### Setup Environment Variables
-
-Create a `.env` file:
-
-MONGO_URI=your_mongodb_atlas_url
-
-### Run Server
-
-node server.js
-
-------------------------------------------------------------------------
-
-## Future Improvements
-
--   Mobile application support\
--   AI-based resource usage prediction\
--   QR code-based backup access\
--   Real-time campus map navigation
-
-------------------------------------------------------------------------
-
-## Team
-
--   Your Name\
--   Team Members
-
-------------------------------------------------------------------------
-
-## Contact
-
-Email: your-email@example.com
+> *Built with ❤️, cardboard, and a lot of jumper wires.*
