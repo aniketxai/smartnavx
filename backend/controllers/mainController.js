@@ -2,6 +2,7 @@ const User = require("../models/user");
 const Room = require("../models/room");
 const Booking = require("../models/booking");
 const AccessLog = require("../models/access");
+const mongoose = require("mongoose");
 
 // Get rooms
 exports.getRooms = async (req, res) => {
@@ -16,11 +17,10 @@ exports.bookRoom = async (req, res) => {
   const user = await User.findOne({ rfid });
   if (!user) return res.status(400).json({ msg: "User not found" });
 
-  // Check conflict
   const conflict = await Booking.findOne({
-    roomId,
-    startTime: { $lt: endTime },
-    endTime: { $gt: startTime }
+    roomId: new mongoose.Types.ObjectId(roomId),
+    startTime: { $lt: new Date(endTime) },
+    endTime: { $gt: new Date(startTime) }
   });
 
   if (conflict) {
@@ -29,9 +29,9 @@ exports.bookRoom = async (req, res) => {
 
   const booking = new Booking({
     userId: user._id,
-    roomId,
-    startTime,
-    endTime
+    roomId: new mongoose.Types.ObjectId(roomId),
+    startTime: new Date(startTime),
+    endTime: new Date(endTime)
   });
 
   await booking.save();
@@ -44,30 +44,49 @@ exports.getBookings = async (req, res) => {
   res.json(bookings);
 };
 
-// RFID access check (MOST IMPORTANT)
+// RFID Access Check (🔥 FINAL FIXED)
 exports.checkAccess = async (req, res) => {
-  const { rfid, roomId } = req.body;
+  try {
+    const rfid = req.body?.rfid || req.query?.rfid;
+    const roomId = req.body?.roomId || req.query?.roomId;
 
-  const user = await User.findOne({ rfid });
-  if (!user) {
+    console.log("RFID:", rfid);
+    console.log("RoomId:", roomId);
+
+    if (!rfid || !roomId) {
+      return res.status(400).json({ access: false });
+    }
+
+    const user = await User.findOne({ rfid });
+    console.log("User:", user);
+
+    if (!user) {
+      await AccessLog.create({ rfid, roomId, status: "denied" });
+      return res.json({ access: false });
+    }
+
+    const now = new Date();
+    console.log("Current Time:", now);
+
+    const booking = await Booking.findOne({
+      userId: user._id,
+      roomId: new mongoose.Types.ObjectId(roomId),
+      startTime: { $lte: now },
+      endTime: { $gte: now }
+    });
+
+    console.log("Booking Found:", booking);
+
+    if (booking) {
+      await AccessLog.create({ rfid, roomId, status: "granted" });
+      return res.json({ access: true });
+    }
+
     await AccessLog.create({ rfid, roomId, status: "denied" });
     return res.json({ access: false });
-  }
 
-  const now = new Date();
-
-  const booking = await Booking.findOne({
-    userId: user._id,
-    roomId,
-    startTime: { $lte: now },
-    endTime: { $gte: now }
-  });
-
-  if (booking) {
-    await AccessLog.create({ rfid, roomId, status: "granted" });
-    return res.json({ access: true });
-  } else {
-    await AccessLog.create({ rfid, roomId, status: "denied" });
-    return res.json({ access: false });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ access: false });
   }
 };
